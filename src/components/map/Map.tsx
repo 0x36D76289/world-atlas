@@ -12,24 +12,25 @@ export default function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
 
-  // Récupération sécurisée du store
   const { setMap, center, zoom, setCenter, setZoom } = useMapStore()
+
+  const initialCenter = useRef(center)
+  const initialZoom = useRef(zoom)
 
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return
 
     const newMap = new maplibregl.Map({
       container: mapContainer.current,
-      style: MAP_STYLE || "https://demotiles.maplibre.org/style.json", // fallback si clé manquante
-      center: center,
-      zoom: zoom,
+      style: MAP_STYLE || "https://demotiles.maplibre.org/style.json",
+      center: initialCenter.current || [0, 0],
+      zoom: initialZoom.current || 2,
       pitch: 45,
       bearing: 0,
     })
 
     mapRef.current = newMap
 
-    // Contrôles
     newMap.addControl(
       new maplibregl.NavigationControl({ visualizePitch: true }),
       "top-right",
@@ -49,24 +50,25 @@ export default function MapView() {
       "bottom-left",
     )
 
-    // Mise à jour du store uniquement si les setters existent
     newMap.on("moveend", () => {
       if (!newMap) return
 
       const newCenter = newMap.getCenter()
       const newZoom = newMap.getZoom()
 
-      if (typeof setCenter === "function") {
+      if (typeof setCenter === "function")
         setCenter([newCenter.lng, newCenter.lat])
-      }
-      if (typeof setZoom === "function") {
-        setZoom(newZoom)
-      }
+      if (typeof setZoom === "function") setZoom(newZoom)
     })
 
     newMap.on("load", () => {
       setMap?.(newMap)
       console.log("Carte initialisée avec succès")
+    })
+
+    newMap.on("styleimagemissing", (e) => {
+      const emptyImage = { width: 1, height: 1, data: new Uint8Array(4) }
+      newMap.addImage(e.id, emptyImage)
     })
 
     return () => {
@@ -75,7 +77,7 @@ export default function MapView() {
         mapRef.current = null
       }
     }
-  }, [center, zoom, setMap, setCenter, setZoom])
+  }, [setMap, setCenter, setZoom])
 
   return (
     <div className="relative w-full h-full">
