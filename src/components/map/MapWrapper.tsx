@@ -11,8 +11,7 @@ const LoadingMap = () => (
   </div>
 )
 
-// Import dynamique avec ssr: false (c’est le wrapper)
-const AtlasMap = dynamic(() => import("./Map"), {
+const AtlasMap = dynamic(() => import("./MapView"), {
   ssr: false,
   loading: () => <LoadingMap />,
 })
