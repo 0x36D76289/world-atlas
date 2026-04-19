@@ -1,7 +1,17 @@
 import maplibregl from "maplibre-gl"
+import * as pmtiles from "pmtiles"
 import { useEffect, useRef } from "react"
 import { useMapStore } from "@/store/mapStore"
-import { MAP_DEFAULTS, MAP_STYLE } from "../constants"
+import {
+  MAP_DEFAULTS,
+  MAP_STYLE,
+  TERRAIN_ENCODING,
+  TERRAIN_MAX_ZOOM,
+  TERRAIN_SOURCE_URL,
+} from "../constants"
+
+const protocol = new pmtiles.Protocol()
+maplibregl.addProtocol("pmtiles", protocol.tile.bind(protocol))
 
 export function useMapInit(
   mapContainer: React.RefObject<HTMLDivElement | null>,
@@ -11,15 +21,14 @@ export function useMapInit(
   const initialCenter = useRef(center)
   const initialZoom = useRef(zoom)
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: mapContainer is a ref, intentionally excluded from deps
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
       style: MAP_STYLE || "https://demotiles.maplibre.org/style.json",
-      center: initialCenter.current || MAP_DEFAULTS.center || [0, 0],
-      zoom: initialZoom.current || MAP_DEFAULTS.zoom || 2,
+      center: initialCenter.current || MAP_DEFAULTS.center,
+      zoom: initialZoom.current || MAP_DEFAULTS.zoom,
       pitch: MAP_DEFAULTS.pitch,
       bearing: MAP_DEFAULTS.bearing,
     })
@@ -56,6 +65,24 @@ export function useMapInit(
 
     map.on("load", () => {
       setMap?.(map)
+
+      map.addSource("terrain", {
+        type: "raster-dem",
+        tiles: [TERRAIN_SOURCE_URL],
+        tileSize: 256,
+        encoding: TERRAIN_ENCODING,
+        maxzoom: TERRAIN_MAX_ZOOM,
+      })
+
+      map.setTerrain(null)
+
+      map.addControl(
+        new maplibregl.TerrainControl({
+          source: "terrain",
+          exaggeration: 0.5,
+        }),
+        "top-right",
+      )
     })
 
     map.on("styleimagemissing", (e) => {
@@ -66,5 +93,5 @@ export function useMapInit(
       mapRef.current?.remove()
       mapRef.current = null
     }
-  }, [setMap, setCenter, setZoom])
+  }, [setMap, setCenter, setZoom, mapContainer.current])
 }

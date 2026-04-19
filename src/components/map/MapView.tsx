@@ -2,6 +2,7 @@
 
 import { useRef } from "react"
 import "maplibre-gl/dist/maplibre-gl.css"
+import DeckOverlay from "./DeckOverlay"
 import { useMapInit } from "./hooks/useMapInit"
 
 export default function MapView() {
@@ -11,6 +12,7 @@ export default function MapView() {
   return (
     <div className="relative w-full h-full">
       <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
+      <DeckOverlay />
     </div>
   )
 }

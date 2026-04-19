@@ -1,21 +1,23 @@
-// src/store/mapStore.ts
 import { create } from "zustand"
 
 interface MapState {
   map: maplibregl.Map | null
   center: [number, number]
   zoom: number
+  terrainEnabled: boolean
   setMap: (map: maplibregl.Map | null) => void
   setCenter: (center: [number, number]) => void
   setZoom: (zoom: number) => void
+  setTerrainEnabled: (enabled: boolean) => void
 }
 
 export const useMapStore = create<MapState>((set) => ({
   map: null,
-  center: [2.3522, 48.8566], // Paris par défaut
-  zoom: 10,
-
+  center: [2.3488, 48.8534],
+  zoom: 12,
+  terrainEnabled: false,
   setMap: (map) => set({ map }),
   setCenter: (center) => set({ center }),
   setZoom: (zoom) => set({ zoom }),
+  setTerrainEnabled: (terrainEnabled) => set({ terrainEnabled }),
 }))
