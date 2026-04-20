@@ -9,6 +9,7 @@ import {
   TERRAIN_MAX_ZOOM,
   TERRAIN_SOURCE_URL,
 } from "../constants"
+import { CrepusculeLive } from "../crepuscule/Crepuscule"
 
 const protocol = new pmtiles.Protocol()
 maplibregl.addProtocol("pmtiles", protocol.tile.bind(protocol))
@@ -17,6 +18,7 @@ export function useMapInit(
   mapContainer: React.RefObject<HTMLDivElement | null>,
 ) {
   const mapRef = useRef<maplibregl.Map | null>(null)
+  const crepusculeRef = useRef<CrepusculeLive | null>(null)
   const { setMap, center, zoom, setCenter, setZoom } = useMapStore()
   const initialCenter = useRef(center)
   const initialZoom = useRef(zoom)
@@ -83,6 +85,11 @@ export function useMapInit(
         }),
         "top-right",
       )
+
+      crepusculeRef.current = new CrepusculeLive(map, {
+        color: [0, 0, 17],
+        opacity: 0.58,
+      })
     })
 
     map.on("styleimagemissing", (e) => {
@@ -90,6 +97,9 @@ export function useMapInit(
     })
 
     return () => {
+      crepusculeRef.current?.unmount()
+      crepusculeRef.current = null
+      setMap?.(null)
       mapRef.current?.remove()
       mapRef.current = null
     }
