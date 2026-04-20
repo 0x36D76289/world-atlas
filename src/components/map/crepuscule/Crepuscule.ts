@@ -159,7 +159,6 @@ export class Crepuscule {
       }
 
       const tileWorker = createTileWorker()
-
       const onAbort = () => {
         tileWorker.terminate()
         reject(new DOMException("The request was aborted", "AbortError"))
@@ -183,12 +182,10 @@ export class Crepuscule {
           resolve(evt.data)
           return
         }
-
         if (isWorkerErrorPayload(evt.data)) {
           reject(new Error(evt.data.error))
           return
         }
-
         reject(new Error("Unexpected worker response payload"))
       }
 
@@ -265,15 +262,12 @@ export class Crepuscule {
 
   unmount() {
     this.raiseIfUnmounted()
-
     if (this.map.getLayer(this.layerId)) {
       this.map.removeLayer(this.layerId)
     }
-
     if (this.map.getSource(this.sourceId)) {
       this.map.removeSource(this.sourceId)
     }
-
     removeProtocol(this.protocolNamespace)
     this.wasUnmounted = true
   }
@@ -281,7 +275,7 @@ export class Crepuscule {
   private raiseIfUnmounted() {
     if (this.wasUnmounted) {
       throw new Error(
-        "This Crepuscule instance was unmounted and can no longer be used.",
+        "l'instance de Crepuscule a été démontée et ne peut plus être utilisée",
       )
     }
   }
@@ -361,16 +355,15 @@ export class CrepusculeLive {
   private swapLayer() {
     const toHide = this.usingA ? this.crA : this.crB
     const toShow = this.usingA ? this.crB : this.crA
+
     this.usingA = !this.usingA
 
     toShow.setDate(new Date())
-
     toHide.setOpacity(0, { duration: 0, delay: this.transitionDelayMs })
     toShow.setOpacity(this.opacity, {
       duration: 0,
       delay: this.transitionDelayMs,
     })
-
     this.map.triggerRepaint()
   }
 

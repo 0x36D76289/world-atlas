@@ -8,8 +8,6 @@ export type FlightPoint = {
   altitude: number
   speed: number
   timestamp: number
-  path: [number, number, number][]
-  timestamps: number[]
 }
 
 interface ApiFlight {
@@ -48,8 +46,6 @@ export function useFlights(bounds?: string) {
           altitude: f.altitude,
           speed: f.groundSpeed || 250,
           timestamp: Date.now(),
-          path: [],
-          timestamps: [],
         }))
 
         setFlights(parsed)
@@ -64,7 +60,6 @@ export function useFlights(bounds?: string) {
 
     return () => {
       clearInterval(interval)
-      // Annule la requête en cours si les bounds changent
       abortController.abort()
     }
   }, [bounds])
