@@ -36,7 +36,7 @@ MapWrapper (SSR disabled)
 
 ---
 
-## 🛠️ Stack technique
+## Stack technique
 
 | Couche | Technologie |
 |--------|-------------|
