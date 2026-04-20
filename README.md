@@ -8,6 +8,8 @@
 ![Deck.gl](https://img.shields.io/badge/Deck.gl-WebGL2-red?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
+<img width="2377" height="1301" alt="image 2" src="https://github.com/user-attachments/assets/c69114d1-020c-47fe-a39e-4ccfa27970c3" />
+
 ---
 
 ## Fonctionnalités
