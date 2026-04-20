@@ -20,6 +20,7 @@ export function useMapInit(
   const mapRef = useRef<maplibregl.Map | null>(null)
   const crepusculeRef = useRef<CrepusculeLive | null>(null)
   const { setMap, center, zoom, setCenter, setZoom } = useMapStore()
+
   const initialCenter = useRef(center)
   const initialZoom = useRef(zoom)
 
@@ -60,13 +61,12 @@ export function useMapInit(
 
     map.on("moveend", () => {
       const newCenter = map.getCenter()
-      if (typeof setCenter === "function")
-        setCenter([newCenter.lng, newCenter.lat])
-      if (typeof setZoom === "function") setZoom(map.getZoom())
+      setCenter([newCenter.lng, newCenter.lat])
+      setZoom(map.getZoom())
     })
 
     map.on("load", () => {
-      setMap?.(map)
+      setMap(map)
 
       map.addSource("terrain", {
         type: "raster-dem",
@@ -99,7 +99,7 @@ export function useMapInit(
     return () => {
       crepusculeRef.current?.unmount()
       crepusculeRef.current = null
-      setMap?.(null)
+      setMap(null)
       mapRef.current?.remove()
       mapRef.current = null
     }
