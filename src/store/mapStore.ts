@@ -13,7 +13,7 @@ interface MapState {
 
 export const useMapStore = create<MapState>((set) => ({
   map: null,
-  center: [2.3488, 48.8534],
+  center: [47.018711, 12.34256],
   zoom: 12,
   terrainEnabled: false,
   setMap: (map) => set({ map }),

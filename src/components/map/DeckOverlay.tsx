@@ -1,59 +1,59 @@
-"use client"
+"use client";
 
-import { IconLayer, PathLayer } from "@deck.gl/layers"
-import { MapboxOverlay } from "@deck.gl/mapbox"
-import { useEffect, useRef, useState } from "react"
-import { useBounds } from "@/hooks/useBounds"
-import { useFlights } from "@/hooks/useFlights"
-import { useMapStore } from "@/store/mapStore"
+import { IconLayer, PathLayer } from "@deck.gl/layers";
+import { MapboxOverlay } from "@deck.gl/mapbox";
+import { useEffect, useRef, useState } from "react";
+import { useBounds } from "@/hooks/useBounds";
+import { useFlights } from "@/hooks/useFlights";
+import { useMapStore } from "@/store/mapStore";
 
-const FEET_TO_METERS = 0.3048
+const FEET_TO_METERS = 0.3048;
 
 interface TrailPoint {
-  lng?: number
-  longitude?: number
-  lat?: number
-  latitude?: number
-  alt?: number
-  altitude?: number
+  lng?: number;
+  longitude?: number;
+  lat?: number;
+  latitude?: number;
+  alt?: number;
+  altitude?: number;
 }
 
 export default function DeckOverlay() {
-  const map = useMapStore((s) => s.map)
-  const overlayRef = useRef<MapboxOverlay | null>(null)
-  const bounds = useBounds()
-  const flights = useFlights(bounds)
+  const map = useMapStore((s) => s.map);
+  const overlayRef = useRef<MapboxOverlay | null>(null);
+  const bounds = useBounds();
+  const flights = useFlights(bounds);
 
-  const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null)
-  const [hoveredFlightId, setHoveredFlightId] = useState<string | null>(null)
-  const [flightTrail, setFlightTrail] = useState<[number, number, number][]>([])
+  const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
+  const [hoveredFlightId, setHoveredFlightId] = useState<string | null>(null);
+  const [flightTrail, setFlightTrail] = useState<[number, number, number][]>(
+    [],
+  );
 
-  // Garde une ref de selectedFlightId pour le handler map click (closure stable)
-  const selectedRef = useRef<string | null>(null)
-  selectedRef.current = selectedFlightId
+  const selectedRef = useRef<string | null>(null);
+  selectedRef.current = selectedFlightId;
 
-  // Fetch du trail à chaque sélection
   useEffect(() => {
     if (!selectedFlightId) {
-      setFlightTrail([])
-      return
+      setFlightTrail([]);
+      return;
     }
 
-    let isMounted = true
+    let isMounted = true;
 
     const fetchFlightDetails = async () => {
       try {
-        const res = await fetch(`/api/flights/${selectedFlightId}`)
+        const res = await fetch(`/api/flights/${selectedFlightId}`);
 
         if (!res.ok) {
           console.warn(
             `Détails du vol ${selectedFlightId} indisponibles (vol terminé ou hors de portée)`,
-          )
-          if (isMounted) setFlightTrail([])
-          return
+          );
+          if (isMounted) setFlightTrail([]);
+          return;
         }
 
-        const data = await res.json()
+        const data = await res.json();
 
         if (isMounted && Array.isArray(data.trail)) {
           const path: [number, number, number][] = data.trail.map(
@@ -62,55 +62,50 @@ export default function DeckOverlay() {
               point.lat ?? point.latitude ?? 0,
               (point.alt ?? point.altitude ?? 0) * FEET_TO_METERS,
             ],
-          )
-          setFlightTrail(path)
+          );
+          setFlightTrail(path);
         }
       } catch {
         console.error(
           `Erreur lors de la récupération des détails du vol ${selectedFlightId}`,
-        )
+        );
       }
-    }
+    };
 
-    fetchFlightDetails()
+    fetchFlightDetails();
     return () => {
-      isMounted = false
-    }
-  }, [selectedFlightId])
+      isMounted = false;
+    };
+  }, [selectedFlightId]);
 
-  // Init de l'overlay + listener de clic carte (désélectionne si clic sur le vide)
   useEffect(() => {
-    if (!map) return
+    if (!map) return;
 
-    const overlay = new MapboxOverlay({ interleaved: true, layers: [] })
-    map.addControl(overlay)
-    overlayRef.current = overlay
+    const overlay = new MapboxOverlay({ interleaved: true, layers: [] });
+    map.addControl(overlay);
+    overlayRef.current = overlay;
 
-    // On ne désélectionne que si le clic n'a pas été absorbé par deck.gl
     const handleMapClick = () => {
-      // deck.gl stopPropagation via onClick return true,
-      // mais MapLibre ne supporte pas stopPropagation sur les overlays ;
-      // on utilise un flag porté par l'event custom.
       if ((window as unknown as Record<string, boolean>).__deckClickConsumed) {
-        ;(window as unknown as Record<string, boolean>).__deckClickConsumed =
-          false
-        return
+        (window as unknown as Record<string, boolean>).__deckClickConsumed =
+          false;
+        return;
       }
-      setSelectedFlightId(null)
-    }
+      setSelectedFlightId(null);
+    };
 
-    map.on("click", handleMapClick)
+    map.on("click", handleMapClick);
 
     return () => {
-      map.removeControl(overlay)
-      overlayRef.current = null
-      map.off("click", handleMapClick)
-    }
-  }, [map])
+      map.removeControl(overlay);
+      overlayRef.current = null;
+      map.off("click", handleMapClick);
+    };
+  }, [map]);
 
   // Mise à jour des layers à chaque changement d'état
   useEffect(() => {
-    if (!overlayRef.current || !map) return
+    if (!overlayRef.current || !map) return;
 
     overlayRef.current.setProps({
       layers: [
@@ -160,26 +155,26 @@ export default function DeckOverlay() {
           },
 
           onHover: (info) => {
-            setHoveredFlightId(info.object?.id ?? null)
+            setHoveredFlightId(info.object?.id ?? null);
             if (map.getCanvas()) {
-              map.getCanvas().style.cursor = info.object ? "pointer" : ""
+              map.getCanvas().style.cursor = info.object ? "pointer" : "";
             }
           },
 
           onClick: (info) => {
             if (info.object) {
-              setSelectedFlightId(info.object.id)
-              ;(
+              setSelectedFlightId(info.object.id);
+              (
                 window as unknown as Record<string, boolean>
-              ).__deckClickConsumed = true
+              ).__deckClickConsumed = true;
             } else if (selectedRef.current) {
-              setSelectedFlightId(null)
+              setSelectedFlightId(null);
             }
           },
         }),
       ],
-    })
-  }, [flights, map, selectedFlightId, hoveredFlightId, flightTrail])
+    });
+  }, [flights, map, selectedFlightId, hoveredFlightId, flightTrail]);
 
-  return null
+  return null;
 }

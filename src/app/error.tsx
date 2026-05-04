@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { AlertTriangle } from "lucide-react"
-import { useEffect } from "react"
+import { AlertTriangle } from "lucide-react";
+import { useEffect } from "react";
 
 export default function AppError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Erreur dans l'application :", error)
-  }, [error])
+    console.error("Erreur dans l'application :", error);
+  }, [error]);
 
   return (
     <div className="fixed inset-0 z-50 flex h-screen w-full items-center justify-center bg-[#0a0a0a]">
@@ -49,7 +49,6 @@ export default function AppError({
           </button>
         </div>
 
-        {/* Affichage optionnel de l'erreur en développement */}
         {process.env.NODE_ENV === "development" && (
           <details className="mt-10 text-left">
             <summary className="cursor-pointer text-sm text-zinc-500 hover:text-zinc-400">
@@ -63,5 +62,5 @@ export default function AppError({
         )}
       </div>
     </div>
-  )
+  );
 }

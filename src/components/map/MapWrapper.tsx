@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import dynamic from "next/dynamic"
+import dynamic from "next/dynamic";
 
 const LoadingMap = () => (
   <div className="w-full h-screen bg-[#0a0a0a] flex items-center justify-center">
@@ -9,13 +9,13 @@ const LoadingMap = () => (
       <p className="text-zinc-400 text-sm">Chargement de la carte...</p>
     </div>
   </div>
-)
+);
 
 const AtlasMap = dynamic(() => import("./MapView"), {
   ssr: false,
   loading: () => <LoadingMap />,
-})
+});
 
 export default function MapWrapper() {
-  return <AtlasMap />
+  return <AtlasMap />;
 }
